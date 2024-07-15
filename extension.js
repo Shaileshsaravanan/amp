@@ -7,6 +7,57 @@ let startTime;
 let currentFolderName = '';
 let currentFileName = '';
 let currentFileType = '';
+const statusMessages = [
+  "🧑‍💻 Coding away on",
+  "🚀 Developing something cool in",
+  "💻 Deep into",
+  "🛠️ Working on",
+  "🎨 Designing for",
+  "🔧 Fixing bugs in",
+  "🎉 Making magic happen in",
+  "🤓 Programming up a storm in",
+  "🌟 Creating something awesome in",
+  "🔍 Debugging the heck out of",
+  "🧩 Putting together",
+  "🧪 Experimenting with",
+  "🎯 Working on new features for",
+  "✨ Sprucing up",
+  "🗂️ Organizing and refining",
+  "📦 Adding new stuff to",
+  "🎢 Riding the code wave in",
+  "🚧 Constructing something new in",
+  "💬 Talking to the code in",
+  "🤔 Figuring out how to fix",
+  "📜 Scribbling in",
+  "💡 Brainstorming in",
+  "📈 Improving",
+  "🖥️ Developing the next big thing in",
+  "🎨 Making things look pretty in",
+  "🚀 Launching features in",
+  "🌈 Adding some color to",
+  "🧙‍♂️ Summoning code spells in",
+  "🧩 Puzzling out problems in",
+  "🎨 Crafting designs for",
+  "🚀 Blasting off with",
+  "🧑‍🎨 Creating art in",
+  "🤖 Automating tasks in",
+  "🔄 Iterating on",
+  "🕹️ Playing around with",
+  "🎲 Rolling the dice on",
+  "🧩 Piecing together",
+  "🚧 Building out",
+  "🔍 Investigating issues in",
+  "💭 Dreaming up ideas for",
+  "💥 Exploding into new features for",
+  "🤖 Programming robots in",
+  "🔄 Reworking",
+  "🎨 Adding flair to",
+  "✨ Shining up",
+  "🚀 Launching new features in",
+  "🌟 Creating new experiences in",
+  "📜 Drafting up",
+  "💬 Yapping in"
+];
 
 function activate(context) {
     console.log('Congratulations, your extension "amp" is now active!');
@@ -145,8 +196,8 @@ function updateFolderInfo() {
 function updateFileInfo() {
     const activeFile = vscode.window.activeTextEditor?.document.fileName;
     if (activeFile) {
-        currentFileName = activeFile;
-        currentFileType = activeFile.split('.').pop();
+        currentFileName = activeFile.split('/').pop();
+        currentFileType = currentFileName.split('.').pop();
     } else {
         currentFileName = '';
         currentFileType = '';
@@ -157,15 +208,20 @@ function sendWebSocketData() {
     if (ws && ws.readyState === WebSocket.OPEN) {
         const now = new Date();
         const formattedTime = formatTime(now);
+        const randomStatus = statusMessages[Math.floor(Math.random() * statusMessages.length)];
         const data = {
             time: formattedTime,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fileName: currentFileName,
             fileType: currentFileType,
             folderName: currentFolderName,
-            uptime: getUptime()
+            uptime: getUptime(),
+            status: `${randomStatus} ${currentFileName}`
         };
         ws.send(JSON.stringify(data));
+
+        // Update the status bar item with a random status message
+        statusBarItem.text = `$(plug) ${randomStatus} ${currentFileName}`;
     }
 }
 
