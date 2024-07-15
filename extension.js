@@ -156,8 +156,9 @@ function updateFileInfo() {
 function sendWebSocketData() {
     if (ws && ws.readyState === WebSocket.OPEN) {
         const now = new Date();
+        const formattedTime = formatTime(now);
         const data = {
-            timestamp: now.toISOString(),
+            time: formattedTime,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fileName: currentFileName,
             fileType: currentFileType,
@@ -166,6 +167,15 @@ function sendWebSocketData() {
         };
         ws.send(JSON.stringify(data));
     }
+}
+
+function formatTime(date) {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
 }
 
 function getUptime() {
