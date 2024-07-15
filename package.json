@@ -1,0 +1,56 @@
+{
+  "name": "amp",
+  "displayName": "amp",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:amp.helloWorld",
+    "onCommand:extension.connect",
+    "onCommand:extension.sendMessage",
+    "onCommand:extension.setWebSocketUrl"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "amp.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "extension.connect",
+        "title": "amp: connect to websocket server"
+      },
+      {
+        "command": "extension.sendMessage",
+        "title": "amp: send message"
+      },
+      {
+        "command": "extension.setWebSocketUrl",
+        "title": "amp: websocket server url"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.91.0",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
