@@ -20,29 +20,6 @@ function activate(context) {
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
 
-    const updateInterval = setInterval(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            const elapsed = new Date() - startTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            statusBarItem.text = `$(plug) Connected | Uptime: ${minutes}m ${seconds}s`;
-
-            const data = {
-                uptime: `${minutes}m ${seconds}s`,
-                folderName: currentFolderName,
-                fileName: currentFileName,
-                fileType: currentFileType
-            };
-            ws.send(JSON.stringify(data));
-        } else {
-            statusBarItem.text = '$(plug) Set WebSocket URL';
-        }
-    }, 1000); 
-
-    context.subscriptions.push({
-        dispose: () => clearInterval(updateInterval)
-    });
-
     let helloWorldCommand = vscode.commands.registerCommand('amp.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from amp extension!');
     });
@@ -97,6 +74,10 @@ function activate(context) {
 
     vscode.window.onDidChangeActiveTextEditor(() => {
         updateFileInfo();
+    });
+
+    vscode.workspace.onDidSaveTextDocument(() => {
+        sendFileChange();
     });
 
     const savedUrl = context.workspaceState.get('websocketUrl');
@@ -167,17 +148,24 @@ function updateFileInfo() {
     if (activeFile) {
         currentFileName = activeFile;
         currentFileType = activeFile.split('.').pop();
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                uptime: getUptime(),
-                folderName: currentFolderName,
-                fileName: currentFileName,
-                fileType: currentFileType
-            }));
-        }
     } else {
         currentFileName = '';
         currentFileType = '';
+    }
+}
+
+function sendFileChange() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        const now = new Date();
+        const data = {
+            timestamp: now.toISOString(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            fileName: currentFileName,
+            fileType: currentFileType,
+            folderName: currentFolderName,
+            uptime: getUptime()
+        };
+        ws.send(JSON.stringify(data));
     }
 }
 
