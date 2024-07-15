@@ -68,16 +68,15 @@ function activate(context) {
     context.subscriptions.push(setUrlCommand);
     context.subscriptions.push(showOptionsCommand);
 
-    vscode.workspace.onDidChangeWorkspaceFolders(() => {
-        updateFolderInfo();
-    });
-
+    // Register event listeners for file and folder changes
     vscode.window.onDidChangeActiveTextEditor(() => {
         updateFileInfo();
+        sendWebSocketData();
     });
 
-    vscode.workspace.onDidSaveTextDocument(() => {
-        sendFileChange();
+    vscode.workspace.onDidChangeWorkspaceFolders(() => {
+        updateFolderInfo();
+        sendWebSocketData();
     });
 
     const savedUrl = context.workspaceState.get('websocketUrl');
@@ -154,7 +153,7 @@ function updateFileInfo() {
     }
 }
 
-function sendFileChange() {
+function sendWebSocketData() {
     if (ws && ws.readyState === WebSocket.OPEN) {
         const now = new Date();
         const data = {
